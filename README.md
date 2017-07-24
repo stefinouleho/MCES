@@ -33,5 +33,8 @@ Sur chaque ligne : mol1 mol2 similarite :
                       similarité = -1 : temps max de calcul atteint
                       similarité = -2 : taille max de calcul atteinte
                       similarité in [0 .. 1] : valeur de similarité entre mol1 et mol2. Plus similarité tend vers 1 plus les molécules sont similaires.
+                      
+                      
+ Le code pour générer le pdf(présentant proprement les résultats avec images) ne se trouve pas dans ce dossier.
                     
 
