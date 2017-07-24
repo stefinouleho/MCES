@@ -2,7 +2,7 @@
 Calcule le degré de similarité avec l'algorithme MCES
 
 
-La base de données de molecul utilisé est CHEBI, il faut téléchargr le fichier CHebi_Lite.pdf et le mettre dans le dossier.
+La base de données de molecul utilisé est CHEBI, il faut télécharger le fichier CHebi_Lite.pdf(https://www.dropbox.com/s/4qqrg5jxi8o727w/ChEBI_lite.sdf?dl=0) et le mettre dans le dossier.
 
 On appele une molécule par son CHEBI ID.
 
