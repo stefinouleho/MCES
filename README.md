@@ -1,8 +1,14 @@
 # MCES
 Calcule le degré de similarité avec l'algorithme MCES
 
+Contraintes :
 
-La base de données de molecul utilisé est CHEBI, il faut télécharger le fichier CHebi_Lite.pdf(https://www.dropbox.com/s/4qqrg5jxi8o727w/ChEBI_lite.sdf?dl=0) et le mettre dans le dossier.
+- La base de données de molecules utilisée est CHEBI, il faut télécharger le fichier CHebi_Lite.pdf(https://www.dropbox.com/s/4qqrg5jxi8o727w/ChEBI_lite.sdf?dl=0) et le mettre dans le dossier.
+
+-faut créer un dossier : resultat à coté du dossier contenant le code, ce dossier contiendra les résultats de similarité.
+
+
+//fin des contraintes
 
 On appele une molécule par son CHEBI ID.
 
@@ -15,3 +21,17 @@ La commande ./mesure_similarite mol1 mol2 temps taille:
                       
                       
 Exemple: ./mesure_similarite 4672 15872 20 600 : calcule la similarité entre la molécule de chebi id 4672 et la molécule 15872 avec un temps limite de 20 secondes et de taille 600 max pour le graphe produit.
+        ./mesure_similarite 4672 0 0 0 : calcule la similarité entre la molécule de chebi id 4672 et toutes les autres molécules de la base de données sans contraintede temps ni de taille
+        
+        
+Dans le cas où mol2 = 0, le résultat de la similarité se trouve dans le fichier ../resultats/similarite_mol1_all.data
+
+Explications des résultats: 
+
+Sur chaque ligne : mol1 mol2 similarite :
+
+                      similarité = -1 : temps max de calcul atteint
+                      similarité = -2 : taille max de calcul atteinte
+                      similarité in [0 .. 1] : valeur de similarité entre mol1 et mol2. Plus similarité tend vers 1 plus les molécules sont similaires.
+                    
+
