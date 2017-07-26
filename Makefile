@@ -12,7 +12,7 @@ mesure_similarite: mesure_similarite.o lecture_molecule_sdf.o fonctions_mces.o
 	gcc ${CFLAGS} mesure_similarite.o lecture_molecule_sdf.o fonctions_mces.o -o mesure_similarite
 	
 
-mesure_similarite.o: mesure_similarite.c mesure_similarite.h
+mesure_similarite.o: mesure_similarite.c
 	gcc ${CFLAGS} -c mesure_similarite.c
 
 fonctions_mces.o: fonctions_mces.c fonctions_mces.h 
