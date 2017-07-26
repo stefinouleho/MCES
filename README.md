@@ -31,7 +31,7 @@ Explications des résultats:
 Sur chaque ligne : mol1 mol2 similarite :
 
                       similarité = -1 : temps max de calcul atteint
-                      similarité = -2 : taille max de calcul atteinte
+                      similarité = -2 : taille max du graphe produit des deux molécules
                       similarité in [0 .. 1] : valeur de similarité entre mol1 et mol2. Plus similarité tend vers 1 plus les molécules sont similaires.
                       
                       
