@@ -477,8 +477,8 @@ void similarite_all(int g1_chebi,struct molecule *M,double date,int taille_limit
 	int i;
 	char nom[64];
 	char nom2[64];
-	sprintf(nom2,"%d",g1_chebi);
-	strcpy(nom, "resultats/similatite_");
+	sprintf(nom2,"%d_%d_%d",g1_chebi,(int)date,taille_limite);
+	strcpy(nom, "resultats/similarite_");
 	strcat(nom,nom2);
 	strcat(nom,"_all.data");
 	FILE *F;
