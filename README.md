@@ -20,8 +20,8 @@ La commande ./mesure_similarite mol1 mol2 temps taille:
                       taille: Taille limite du graphe produit pour trouver le MCES.(0 si on ne veut pas de limite en taille)
                       
                       
-Exemple: ./mesure_similarite 4672 15872 20 600 : calcule la similarité entre la molécule de chebi id 4672 et la molécule 15872 avec un temps limite de 20 secondes et de taille 600 max pour le graphe produit.
-        ./mesure_similarite 4672 0 0 0 : calcule la similarité entre la molécule de chebi id 4672 et toutes les autres molécules de la base de données sans contraintede temps ni de taille
+Exemple: ./mesure_similarite 15377 29412 20 600 : calcule la similarité entre la molécule de chebi id 15377 et la molécule 29412 avec un temps limite de 20 secondes et de taille 600 max pour le graphe produit.
+        ./mesure_similarite 15377 0 0 0 : calcule la similarité entre la molécule de chebi id 15377 et toutes les autres molécules de la base de données sans contrainte de temps ni de taille
         
         
 Dans le cas où mol2 = 0, le résultat de la similarité se trouve dans le fichier ../resultats/similarite_mol1_all.data
