@@ -605,6 +605,7 @@ void set_minimization(abpl pl){
 void set_debug_verbose(abpl pl){
 
   SCIPenableDebugSol(pl->scip);
+  SCIPsetIntParam(pl->scip, "display/verblevel", 4);
 
 }
 
@@ -629,7 +630,7 @@ void set_debug_verbose(abpl pl){
 void set_silent_verbose(abpl pl){
 
   SCIPdisableDebugSol(pl->scip);
-
+  SCIPsetIntParam(pl->scip, "display/verblevel", 0);
 }
 
 
