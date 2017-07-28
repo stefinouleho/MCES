@@ -1,8 +1,10 @@
 CFLAGS=-g -Wall
 #CFLAGS=-O2 -Wall
 
-CC = gcc -Wall -Wextra -ansi
-CXX = g++ -Wall -Wextra -ansi
+CC = gcc -Wall -Wextra
+CXX = g++ -Wall -Wextra
+
+all:mesure_similarite
 
 run: mesure_similarite
 	./mesure_similarite 28973 4672 600 1600
@@ -10,9 +12,10 @@ run: mesure_similarite
 val: mesure_similarite
 	valgrind --leak-check=full --show-leak-kinds=all ./mesure_similarite 28973 4672 20 600	
 
-mesure_similarite: mesure_similarite.o lecture_molecule_sdf.o fonctions_mces.o graph.o
+mesure_similarite: mesure_similarite.o lecture_molecule_sdf.o fonctions_mces.o helpers/graph.o helpers/cliquerecursif.o
 	gcc ${CFLAGS} -o $@ $^
-mesure_similarite_scip : mesure_similarite.o lecture_molecule_sdf.o fonctions_mces.o graph.o helpers/proglin_helper_scip.o helpers/sciplib.a
+
+mesure_similarite_scip : mesure_similarite.o lecture_molecule_sdf.o fonctions_mces.o helpers/graph.o helpers/proglin_helper_scip.o helpers/sciplib.a helpers/cliquescip.o 
 	$(CXX) -I helpers/scip -o $@ $^ -lpopt -lgmp -lm -lz -lreadline -lncurses 	
 
 mesure_similarite.o: mesure_similarite.c
@@ -26,6 +29,7 @@ lecture_molecule_sdf.o: lecture_molecule_sdf.c lecture_molecule_sdf.h
 
 helpers/proglin_helper_scip.o : helpers/proglin_helper_scip.c helpers/proglin_helper.h helpers/sciplib.a
 	$(CC) -I helpers/scip -o $@ -c $<
+
 
 	
 clean: 

@@ -1,10 +1,9 @@
 #include "fonctions_mces.h"
-#include "graph.h"
+#include "helpers/graph.h"
+#include "helpers/clique.h"
 
 #define AUCUNE_LIAISON (-1024)
 
-int taille_clique_max = 0;
-int *dans_clique_max= NULL;
 int liaison_max = 0;
 double last_chrono;
 
@@ -205,105 +204,8 @@ void liberer_molecule(struct molecule g)
 	}
 } 
 
-void calcul_cl(graph g, int *dans_clique,int taille_clique,int *candidat,int taille_candidat, double date)
-{	//calcul de la clique max recursif
-	
-  int taille = nbnodes(g);
-  
-	if (date != 0)
-	{	
-		if(chrono() - last_chrono > date) 
-			return;
-	}
-	int i,j;
-	if( taille_candidat == 0)
-	{
-		if(taille_clique > taille_clique_max){
-			taille_clique_max = taille_clique;
-			for (i = 0 ;  i < taille ; i ++)
-				dans_clique_max[i] = dans_clique[i];
-		}
-		return;
-	}
-	
-	if (taille_candidat + taille_clique <= taille_clique_max)
-	{
 
-		return;
-	}
-	
-	//else 
-	int taille_candidat_temp;
-	int *candidat_temp;
-	candidat_temp = malloc( taille * sizeof(int));
-
-
-
-	for (i = 0 ;  i < taille ; i ++)
-	{
-		if ( candidat[i] == 1)
-		{
-			candidat[i] = 0;
-			dans_clique[i] = 1 ;
-			taille_candidat_temp = taille_candidat;
-			
-			for (j = 0 ;  j < taille ; j ++)
-			{
-				candidat_temp[j] = candidat[j]; 
-				if ((candidat[j] == 1) && (are_neighbors(g, i, j) == 0))
-				{
-					candidat_temp[j] = 0;
-					taille_candidat_temp--;	
-				}	
-			}
-			
-			taille_candidat_temp --;
-
-			calcul_cl(g,dans_clique,taille_clique + 1,candidat_temp,taille_candidat_temp,date);
-			dans_clique[i] = 0;
-			
-		}	
-		
-	}
-	free(candidat_temp);
-		 
-}
-
-	
-void la_clique_max(graph g, double date)
-{	//Debut calcul de la clique -- Initialisation
-	int i;
-	int *candidat;
-	int *dans_clique;
-
-  int taille = nbnodes(g);
-	
-	dans_clique_max = malloc( taille *sizeof(int));
-	if (!dans_clique_max) { fprintf(stderr,"cannot malloc dans_clique_max %d\n",taille); exit(41); }
-	dans_clique = malloc( taille *sizeof(int));
-	if (!dans_clique) { fprintf(stderr,"cannot malloc dans_clique %d\n",taille); exit(42); }
-	candidat = malloc( taille *sizeof(int));
-	if (!candidat) { fprintf(stderr,"cannot malloc candidat %d\n",taille); exit(43); }
-	
-	//initialisation 
-	for(i = 0; i < taille ; i++ )
-	{
-		candidat[i] 	= 1;
-		dans_clique[i]	= 0;
-		dans_clique_max[i] = 0;
-	}
-	
-	taille_clique_max = 0;
-	
-	calcul_cl(g,dans_clique,0,candidat,taille,date); // 0 taille de la clique initial  et m.nb_atome = nb sommets candidats
-	 
-	free(dans_clique);
-	free(candidat);
-	
-}
-
-
-int*  graphe_g12(graph g12, struct molecule *M, int g1_chebi, int g2_chebi)
+int*  graphe_g12(graph g12, int* clique_max,  struct molecule *M, int g1_chebi, int g2_chebi)
 { //contruction du graphe commun
 
 	int* taille_graphe_commun = (int*) malloc(sizeof(int)*2);
@@ -319,9 +221,8 @@ int*  graphe_g12(graph g12, struct molecule *M, int g1_chebi, int g2_chebi)
 	int tab[taille];
 	for(i=0;i < taille ; i++)
 	{
-		tab[i] = dans_clique_max[i];
+		tab[i] = clique_max[i];
 	}
-	free(dans_clique_max);
 	
 	for(i=0;i < taille - 1; i++)
 	{
@@ -420,17 +321,18 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 	graph g12 = graphe_produit(g1_chebi,g2_chebi,M);
   int taille = nbnodes(g12);
   int** liaisons = build_matrix_from_graph(g12);	
-
+  
 	if( taille_limite != 0 && ( taille > taille_limite))
 	{
 		similarite = -2;
 	}
 	else
 	{
-		
-		la_clique_max(g12,date);
-		
-		int* taille_graphe_commun = graphe_g12(g12,M,g1_chebi,g2_chebi);
+    
+		int* clique = clique_max(g12, (long)date);
+
+		int* taille_graphe_commun = graphe_g12(g12,clique,M,g1_chebi,g2_chebi);
+    free(clique);
 	  int nb_atomes_communs = taille_graphe_commun[0];	
 	  int nb_laisons_communs = taille_graphe_commun[1];	
 		
@@ -456,6 +358,7 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 	}
 	free(liaisons);
   destroy(g12);
+  
 	return similarite;
 }
 
