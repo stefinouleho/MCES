@@ -56,9 +56,9 @@ int** build_matrix_from_graph(graph g){
 }
 
 void destroy(graph g){
-  int n = nbnodes(g);
 
   /* Si links a été créé lors de la création du graphe
+  int n = nbnodes(g);
   int i;
   for(i = 0; i < n; i++){
     free(g->links[i]);
