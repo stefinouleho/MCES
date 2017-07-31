@@ -1,9 +1,9 @@
 #include "fonctions_mces.h"
+#include "helpers/graph.h"
+#include "helpers/clique.h"
 
 #define AUCUNE_LIAISON (-1024)
 
-int taille_clique_max = 0;
-int *dans_clique_max= NULL;
 int liaison_max = 0;
 double last_chrono;
 
@@ -114,14 +114,10 @@ struct couple *construction_couples(struct molecule *M,int pos1, int pos2,int ta
 
 
 
-struct molecule graphe_produit(int g1_chebi,int g2_chebi,struct molecule *M)
+graph graphe_produit(int g1_chebi,int g2_chebi,struct molecule *M)
 { //prend en entrée les chebi id de deux molecules  et contruit le graphe produit
 		
 		
-	struct molecule g12;
-	g12.liste_liaisons = NULL;
-	g12.matrice_liaisons = NULL;
-	g12.liste_atomes = NULL;
 	//trouve la position des molecules g1 et g2
 	int taille= 0,pos1,pos2;
 	pos1 =position_M(g1_chebi,M);
@@ -129,13 +125,10 @@ struct molecule graphe_produit(int g1_chebi,int g2_chebi,struct molecule *M)
 	
 	//calcul de la taille du graphe produit
 	int i,j;
-	for(i= 0; i < M[pos1].nb_atomes; i++)
-	{ 
+	for(i= 0; i < M[pos1].nb_atomes; i++) 
 		for(j= 0; j < M[pos2].nb_atomes;j++)
-		{
-			if( M[pos1].liste_atomes[i] == M[pos2].liste_atomes[j]) taille ++;
-		}
-	}
+			if( M[pos1].liste_atomes[i] == M[pos2].liste_atomes[j]) 
+        taille ++;
 	
 	//couple de liaisons entre les nouveaux sommets
 	struct couple * couple_atome = construction_couples(M,pos1,pos2,taille);
@@ -144,10 +137,10 @@ struct molecule graphe_produit(int g1_chebi,int g2_chebi,struct molecule *M)
 	M[pos1]= construction_matrice_mol(M[pos1]);
 	M[pos2]=construction_matrice_mol(M[pos2]);
 	
+    
+
 	//initialisation de g12
-	g12.nb_atomes = taille;
-	g12.nb_liaisons = 0;
-	if( g12.nb_atomes > 0)
+	/*if( taille > 0)
 	{
 		g12.liste_atomes = malloc(g12.nb_atomes * sizeof(int));
 		if(g12.liste_atomes == NULL)
@@ -155,60 +148,45 @@ struct molecule graphe_produit(int g1_chebi,int g2_chebi,struct molecule *M)
 			fprintf(stdout, "Cannot allocate memory \n" );
 			exit(33);
 		}
-	}
-	for(i = 0;i < g12.nb_atomes;i++) 
-		g12.liste_atomes[i] = M[pos1].liste_atomes[couple_atome[i].a1];	
+	}*/
 	
-	if( g12.nb_atomes > 0)
+  int** matrice_liaisons;
+
+	if( taille > 0)
 	{	
-		g12.matrice_liaisons =  malloc(g12.nb_atomes * sizeof(int *));
-		
-		for(i = 0 ;i < g12.nb_atomes;i++) g12.matrice_liaisons[i] =  malloc(g12.nb_atomes * sizeof(int));
+		matrice_liaisons =  malloc(taille * sizeof(int *));	
+		for(i = 0 ;i < taille;i++) 
+      matrice_liaisons[i] =  malloc(taille * sizeof(int));
 	}
-		//remplissage des atomes	
-	for(i = 0;i < g12.nb_atomes;i++) 
-		g12.liste_atomes[i] = M[pos1].liste_atomes[couple_atome[i].a1];	
-	//remplissage des liaisons
+	
+  //remplissage des liaisons
 	int i1,i2,j1,j2;
 	for(i= 0; i < taille ;i++)
-	{
 		for(j= 0; j < taille ;j++)
-			g12.matrice_liaisons[i][j] = 0;
-		
-	}
-
-	
-	for(i= 0; i < taille ;i++)
-		g12.matrice_liaisons[i][i] = 1;
+			matrice_liaisons[i][j] = 0;
 
 	for(i= 0; i < taille ;i++)
-	{ 
+		matrice_liaisons[i][i] = 1;
+
+	for(i= 0; i < taille ;i++){ 
 		i1 = couple_atome[i].a1;
 		i2 = couple_atome[i].a2;
-		for(j= i + 1 ; j < taille ;j++)
-		{
-			
+		for(j= i + 1 ; j < taille ;j++){
 			j1=couple_atome[j].a1;
 			j2=couple_atome[j].a2;
 			
-			if( M[pos1].matrice_liaisons[i1][j1] == M[pos2].matrice_liaisons[i2][j2] )
-			{
-
+			if( M[pos1].matrice_liaisons[i1][j1] == M[pos2].matrice_liaisons[i2][j2] ){
 				if(((i1 == j1) && (M[pos2].matrice_liaisons[i2][j2] != AUCUNE_LIAISON)) || ((i2 == j2) && (M[pos1].matrice_liaisons[i1][j1] != AUCUNE_LIAISON)) ||( (i1 != j1) && (i2!=j2))||( (i1 ==j1) && (i2==j2)) )
 				{
-					g12.matrice_liaisons[i][j] = 1;
-					g12.matrice_liaisons[j][i] = 1;
-					
-									
+					matrice_liaisons[i][j] = 1;
+					matrice_liaisons[j][i] = 1;					
 				}
 			}
-			
 		}
 	}
 	free(couple_atome);
 	//affiche_matrice(g12);
-	return g12;
-	
+	return build_graph_from_matrix(taille, matrice_liaisons);
 }
 
 void liberer_molecule(struct molecule g) 
@@ -225,123 +203,32 @@ void liberer_molecule(struct molecule g)
 		free(g.matrice_liaisons);
 	}
 } 
-void calcul_cl(struct molecule m,int *dans_clique,int taille_clique,int *candidat,int taille_candidat, double date)
-{	//calcul de la clique max recursif
-	
-	if (date != 0)
-	{	
-		if(chrono() - last_chrono > date) 
-			return;
-	}
-	int i,j;
-	if( taille_candidat == 0)
-	{
-		if(taille_clique > taille_clique_max){
-			taille_clique_max = taille_clique;
-			for (i = 0 ;  i < m.nb_atomes ; i ++)
-				dans_clique_max[i] = dans_clique[i];
-		}
-		return;
-	}
-	
-	if (taille_candidat + taille_clique <= taille_clique_max)
-	{
-
-		return;
-	}
-	
-	//else 
-	int taille_candidat_temp;
-	int *candidat_temp;
-	candidat_temp = malloc( m.nb_atomes * sizeof(int));
 
 
-
-	for (i = 0 ;  i < m.nb_atomes ; i ++)
-	{
-		if ( candidat[i] == 1)
-		{
-			candidat[i] = 0;
-			dans_clique[i] = 1 ;
-			taille_candidat_temp = taille_candidat;
-			
-			for (j = 0 ;  j < m.nb_atomes ; j ++)
-			{
-				candidat_temp[j] = candidat[j]; 
-				if ((candidat[j] == 1) && (m.matrice_liaisons[i][j] == 0))
-				{
-					candidat_temp[j] = 0;
-					taille_candidat_temp--;	
-				}	
-			}
-			
-			taille_candidat_temp --;
-
-			calcul_cl(m,dans_clique,taille_clique + 1,candidat_temp,taille_candidat_temp,date);
-			dans_clique[i] = 0;
-			
-		}	
-		
-	}
-	free(candidat_temp);
-		 
-}
-
-	
-void la_clique_max( struct molecule m,double date)
-{	//Debut calcul de la clique -- Initialisation
-	int i;
-	int *candidat;
-	int *dans_clique;
-	
-	dans_clique_max = malloc( m.nb_atomes *sizeof(int));
-	if (!dans_clique_max) { fprintf(stderr,"cannot malloc dans_clique_max %d\n",m.nb_atomes); exit(41); }
-	dans_clique = malloc( m.nb_atomes *sizeof(int));
-	if (!dans_clique) { fprintf(stderr,"cannot malloc dans_clique %d\n",m.nb_atomes); exit(42); }
-	candidat = malloc( m.nb_atomes *sizeof(int));
-	if (!candidat) { fprintf(stderr,"cannot malloc candidat %d\n",m.nb_atomes); exit(43); }
-	
-	//initialisation 
-	for(i = 0; i < m.nb_atomes ; i++ )
-	{
-		candidat[i] 	= 1;
-		dans_clique[i]	= 0;
-		dans_clique_max[i] = 0;
-	}
-	
-	taille_clique_max = 0;
-	
-	calcul_cl(m,dans_clique,0,candidat,m.nb_atomes,date); // 0 taille de la clique initial  et m.nb_atome = nb sommets candidats
-	 
-	free(dans_clique);
-	free(candidat);
-	
-}
-
-
-struct molecule graphe_g12(struct molecule g12, struct molecule *M, int g1_chebi, int g2_chebi)
+int*  graphe_g12(graph g12, int* clique_max,  struct molecule *M, int g1_chebi, int g2_chebi)
 { //contruction du graphe commun
 
-	struct molecule clique;
-	int nb_at =0,nb_liaisons=0,i,j,i1,j1;
+	int* taille_graphe_commun = (int*) malloc(sizeof(int)*2);
+  int nb_at =0,nb_liaisons=0,i,j,i1,j1;
 	int pos1,pos2;
 	pos1 =position_M(g1_chebi,M);
 	pos2 =position_M(g2_chebi,M);
 	
-	struct couple *couple_atome = construction_couples(M,pos1,pos2,g12.nb_atomes);
+  int taille = nbnodes(g12);
+	struct couple *couple_atome = construction_couples(M,pos1,pos2,taille);
+
 	
-	int tab[g12.nb_atomes];
-	for(i=0;i < g12.nb_atomes ; i++)
+	int tab[taille];
+	for(i=0;i < taille ; i++)
 	{
-		tab[i] = dans_clique_max[i];
+		tab[i] = clique_max[i];
 	}
-	free(dans_clique_max);
 	
-	for(i=0;i < g12.nb_atomes - 1; i++)
+	for(i=0;i < taille - 1; i++)
 	{
 		if(tab[i] == 1)
 		{
-			for(j=i+1;j < g12.nb_atomes ; j++)
+			for(j=i+1;j < taille ; j++)
 			{
 				if(tab[j]==1 && (couple_atome[i].a1 == couple_atome[j].a1))
 						tab[j] = 0;
@@ -349,17 +236,17 @@ struct molecule graphe_g12(struct molecule g12, struct molecule *M, int g1_chebi
 		}
 	}
 
-	for(i=0;i < g12.nb_atomes ; i++)
+	for(i=0;i < taille ; i++)
 	{
 		if(tab[i] ==1)
 			nb_at++;
 	}
 
-	for(i=0;i < g12.nb_atomes - 1; i++)
+	for(i=0;i < taille - 1; i++)
 	{
 		if(tab[i] == 1)
 		{
-			for(j = i+1;j < g12.nb_atomes; j++)
+			for(j = i+1;j < taille; j++)
 			{
 				if(tab[j] == 1)
 				{
@@ -373,10 +260,9 @@ struct molecule graphe_g12(struct molecule g12, struct molecule *M, int g1_chebi
 		}
 	}
 	free(couple_atome);
-	
-	clique.nb_liaisons = nb_liaisons;
-	clique.nb_atomes= nb_at;
-	return clique;
+	taille_graphe_commun[0] = nb_at;
+	taille_graphe_commun[1] = nb_liaisons;
+	return taille_graphe_commun;
 	
 }
 
@@ -432,23 +318,27 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 	pos1 = position_M(g1_chebi,M);
 	pos2 = position_M(g2_chebi,M);
 	
-	struct molecule g12 = graphe_produit(g1_chebi,g2_chebi,M);
-	
-	if( taille_limite != 0 && ( g12.nb_atomes > taille_limite))
+	graph g12 = graphe_produit(g1_chebi,g2_chebi,M);
+  int taille = nbnodes(g12);
+  int** liaisons = build_matrix_from_graph(g12);	
+  
+	if( taille_limite != 0 && ( taille > taille_limite))
 	{
 		similarite = -2;
 	}
 	else
 	{
-		
-		la_clique_max(g12,date);
-		
-		struct molecule clique= graphe_g12(g12,M,g1_chebi,g2_chebi);
-		
+    
+		int* clique = clique_max(g12, (long)date);
+
+		int* taille_graphe_commun = graphe_g12(g12,clique,M,g1_chebi,g2_chebi);
+    free(clique);
+	  int nb_atomes_communs = taille_graphe_commun[0];	
+	  int nb_laisons_communs = taille_graphe_commun[1];	
 		
 		if(date == 0 || (chrono() - last_chrono <= date))
 		{
-			float num = (float)((clique.nb_atomes + clique.nb_liaisons)*(clique.nb_atomes + clique.nb_liaisons));
+			float num = (float)((nb_atomes_communs + nb_laisons_communs)*(nb_atomes_communs + nb_laisons_communs));
 			float denum = (float)((M[pos1].nb_atomes + M[pos1].nb_liaisons)*(M[pos2].nb_atomes + M[pos2].nb_liaisons));
 			similarite = num/denum;
 		}
@@ -456,19 +346,19 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 		{
 			similarite = -1;
 		}
+
+    free(taille_graphe_commun);
 	}
 	
-	if(g12.liste_atomes != NULL)
-		free(g12.liste_atomes);
-	if(g12.liste_liaisons != NULL)
-		free(g12.liste_liaisons);
-	if(g12.matrice_liaisons != NULL)
+	if(liaisons != NULL)
 	{
 		int i;
-		for (i = 0; i < g12.nb_atomes;i++)
-			free(g12.matrice_liaisons[i]);
+		for (i = 0; i < taille;i++)
+			free(liaisons[i]);
 	}
-	free(g12.matrice_liaisons);
+	free(liaisons);
+  destroy(g12);
+  
 	return similarite;
 }
 
