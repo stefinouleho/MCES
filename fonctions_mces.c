@@ -196,7 +196,7 @@ void liberer_molecule(struct molecule g)
 		free(g.liste_atomes);
 	}
 	if (g.liste_liaisons != NULL ) free(g.liste_liaisons);
-	if (g.matrice_liaisons)
+	if (g.matrice_liaisons != NULL)
 	{	
 		int i;
 		for (i=0 ; i<g.nb_atomes ; i++) free(g.matrice_liaisons[i]);
