@@ -362,15 +362,27 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 	return similarite;
 }
 
-void similarite_all(int g1_chebi,struct molecule *M,double date,int taille_limite)
+void similarite_all(int g1_chebi,struct molecule *M,int type, double date,int taille_limite)
 {
 	int i;
 	char nom[64];
 	char nom2[64];
 	sprintf(nom2,"%d_%d_%d",g1_chebi,(int)date,taille_limite);
-	strcpy(nom, "resultats/similarite_");
+	if( type == 1)
+	{
+		strcpy(nom, "resultats/similarite_");
+	}
+	else if( type == 2)
+	{
+		strcpy(nom, "resultats/similarite_feuilles");
+	}
+	else
+	{
+		strcpy(nom, "resultats/similarite_error");
+	}
 	strcat(nom,nom2);
 	strcat(nom,"_all.data");
+	int pos2;
 	FILE *F;
 	F = fopen( nom, "w");
 	if(F == NULL){
@@ -388,6 +400,8 @@ void similarite_all(int g1_chebi,struct molecule *M,double date,int taille_limit
 			fprintf(stdout,"\r%5d / %d (%3d atomes) %.3lf ",i,NB_MOLECULES,M[i].nb_atomes,last_chrono);
 			fflush(stdout); 
 		}
+		pos2 = position_M(M[i].chebi_id,M);
+		M[pos2]= elimination_feuilles(M[pos2]);
 		r = mesure_similarite( g1_chebi, M[i].chebi_id,M, date, taille_limite);
 		fprintf(F, "%d %f\n",M[i].chebi_id,r);
 		fflush(F);
