@@ -1,4 +1,4 @@
-#include "fonction_mces.h"
+#include "fonctions_mces.h"
 #include <string.h>
 
 void free_memoire(struct molecule m)
