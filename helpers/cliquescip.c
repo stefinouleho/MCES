@@ -50,7 +50,8 @@ int* clique_max(graph g, long timeout){
   set_maximization(pl);
 
   set_objective(pl, n, colnoobj, rowobj); /* max sum(x_u, u noeud de g) */
-
+  free(colnoobj);
+  free(rowobj);
     
 
   /* Quantité de débug affiché à l'écran, ici on affiche rien */
