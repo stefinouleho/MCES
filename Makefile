@@ -30,7 +30,7 @@ lecture_molecule_sdf.o: lecture_molecule_sdf.c lecture_molecule_sdf.h
 helpers/proglin_helper_scip.o : helpers/proglin_helper_scip.c helpers/proglin_helper.h helpers/sciplib.a
 	$(CC) -I helpers/scip -o $@ -c $<
 
-feuilles.o: feuilles.c feuilles.h lecture_molecule_sdf.h
+feuilles.o: feuilles.c fonctions_mces.h
 	gcc ${CFLAGS} -c feuilles.c
 	
 clean: 
