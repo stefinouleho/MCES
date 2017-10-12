@@ -7,10 +7,10 @@ CXX = g++ -Wall -Wextra
 all:mesure_similarite
 
 run: mesure_similarite
-	./mesure_similarite 28973 4672 600 1600
+	./mesure_similarite 28973 4672 2 10 1600
 
 val: mesure_similarite
-	valgrind --leak-check=full --show-leak-kinds=all ./mesure_similarite 28973 4672 20 600	
+	valgrind --leak-check=full --show-leak-kinds=all ./mesure_similarite 28973 4672  2 20 600	
 
 mesure_similarite: mesure_similarite.o lecture_molecule_sdf.o fonctions_mces.o feuilles.o helpers/graph.o helpers/cliquerecursif.o
 	gcc ${CFLAGS} -o $@ $^
