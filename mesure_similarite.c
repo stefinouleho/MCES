@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 	fprintf(stdout," donnees recus :\n molecule de chebi 1 = %d et chebi 2 = %d  avec type = %d , la date limite de  %f s et taille limite de %d sommets\n" , num_chebi1,num_chebi2,type, date,taille_limite);
 	
 	float r;
+	int pos1,pos2;
 	if( num_chebi2 != 0)
 	{
 		last_chrono = chrono();
@@ -35,6 +36,8 @@ int main(int argc, char *argv[])
 		}
 		else if( type == 2 )
 		{
+			pos1 = position_M(num_chebi1,M);
+			pos2 = position_M(num_chebi2,M);
 			M[pos1]= elimination_feuilles(M[pos1]);
 			M[pos2]= elimination_feuilles(M[pos2]);
 			r = mesure_similarite( num_chebi1, num_chebi2,M, date, taille_limite);
