@@ -350,13 +350,13 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
     free(taille_graphe_commun);
 	}
 	
-	if(liaisons != NULL)
+	/*if(liaisons != NULL)
 	{
 		int i;
 		for (i = 0; i < taille;i++)
 			free(liaisons[i]);
 	}
-	free(liaisons);
+	free(liaisons);*/
   destroy(g12);
   
 	return similarite;
