@@ -32,6 +32,7 @@ helpers/proglin_helper_scip.o : helpers/proglin_helper_scip.c helpers/proglin_he
 
 feuilles.o: feuilles.c fonctions_mces.h
 	gcc ${CFLAGS} -c feuilles.c
+
 	
 clean: 
 	rm -f mesure_similarite

@@ -196,7 +196,7 @@ void liberer_molecule(struct molecule g)
 		free(g.liste_atomes);
 	}
 	if (g.liste_liaisons != NULL ) free(g.liste_liaisons);
-	if (g.matrice_liaisons)
+	if (g.matrice_liaisons != NULL)
 	{	
 		int i;
 		for (i=0 ; i<g.nb_atomes ; i++) free(g.matrice_liaisons[i]);
@@ -320,7 +320,9 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 	
 	graph g12 = graphe_produit(g1_chebi,g2_chebi,M);
   int taille = nbnodes(g12);
-  int** liaisons = build_matrix_from_graph(g12);	
+  int** liaisons = build_matrix_from_graph(g12);
+  if(taille == 0)
+    return 0;	
   
 	if( taille_limite != 0 && ( taille > taille_limite))
 	{
@@ -349,16 +351,8 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 
     free(taille_graphe_commun);
 	}
-	
-	/*if(liaisons != NULL)
-	{
-		int i;
-		for (i = 0; i < taille;i++)
-			free(liaisons[i]);
-	}
-	free(liaisons);*/
+
   destroy(g12);
-  
 	return similarite;
 }
 
