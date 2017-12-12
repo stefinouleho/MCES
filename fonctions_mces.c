@@ -362,6 +362,21 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 	return similarite;
 }
 
+int nb_lignes( FILE *F)
+{
+	int lignes = 0;
+	int molecule;
+	float similarite;
+	while(!feof(F))
+	{
+		fscanf(F,"%d",&molecule);
+		fscanf(F,"%f",&similarite);
+		lignes++;
+	}
+
+	return lignes;
+
+}
 void similarite_all(int g1_chebi,struct molecule *M,int type, double date,int taille_limite)
 {
 	int i;
@@ -383,13 +398,28 @@ void similarite_all(int g1_chebi,struct molecule *M,int type, double date,int ta
 	strcat(nom,nom2);
 	strcat(nom,"_all.data");
 	int pos2;
+	int debut;
 	FILE *F;
-	F = fopen( nom, "w");
+	F = fopen( nom, "r");
 	if(F == NULL){
-		fprintf(stdout,"Impossible de creer le fichier de resultat\n");
-		exit(45);
+		F = fopen( nom, "w");
+		if(F == NULL)
+		{
+			fprintf(stdout,"Impossible de creer le fichier de resultat\n");
+			exit(45);
+		}
+		fclose(F);
+		debut = 0;
+
 	}
-	
+	else
+	{
+		// compter le nombre de lignes 
+		debut = nb_lignes(F);
+		fclose(F);
+	}
+
+	F = fopen( nom, "a");
 	float r;
 	
 	for ( i = 0;  i < NB_MOLECULES;  i++)
