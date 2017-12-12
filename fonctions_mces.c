@@ -351,33 +351,69 @@ float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double dat
 
     free(taille_graphe_commun);
 	}
-	if(liaisons != NULL)
-	{
-		int i;
-		for (i = 0; i < taille;i++)
-			free(liaisons[i]);
-	}
-	free(liaisons);
+
   destroy(g12);
 	return similarite;
 }
 
-void similarite_all(int g1_chebi,struct molecule *M,double date,int taille_limite)
+int nb_lignes( FILE *F)
+{
+	int lignes = 0;
+	int molecule;
+	float similarite;
+	while(!feof(F))
+	{
+		fscanf(F,"%d",&molecule);
+		fscanf(F,"%f",&similarite);
+		lignes++;
+	}
+
+	return lignes;
+
+}
+void similarite_all(int g1_chebi,struct molecule *M,int type, double date,int taille_limite)
 {
 	int i;
 	char nom[64];
 	char nom2[64];
 	sprintf(nom2,"%d_%d_%d",g1_chebi,(int)date,taille_limite);
-	strcpy(nom, "resultats/similarite_");
+	if( type == 1)
+	{
+		strcpy(nom, "resultats/similarite_");
+	}
+	else if( type == 2)
+	{
+		strcpy(nom, "resultats/similarite_feuilles");
+	}
+	else
+	{
+		strcpy(nom, "resultats/similarite_error");
+	}
 	strcat(nom,nom2);
 	strcat(nom,"_all.data");
+	int pos2;
+	int debut;
 	FILE *F;
-	F = fopen( nom, "w");
+	F = fopen( nom, "r");
 	if(F == NULL){
-		fprintf(stdout,"Impossible de creer le fichier de resultat\n");
-		exit(45);
+		F = fopen( nom, "w");
+		if(F == NULL)
+		{
+			fprintf(stdout,"Impossible de creer le fichier de resultat\n");
+			exit(45);
+		}
+		fclose(F);
+		debut = 0;
+
 	}
-	
+	else
+	{
+		// compter le nombre de lignes 
+		debut = nb_lignes(F);
+		fclose(F);
+	}
+
+	F = fopen( nom, "a");
 	float r;
 	
 	for ( i = 0;  i < NB_MOLECULES;  i++)
@@ -388,6 +424,8 @@ void similarite_all(int g1_chebi,struct molecule *M,double date,int taille_limit
 			fprintf(stdout,"\r%5d / %d (%3d atomes) %.3lf ",i,NB_MOLECULES,M[i].nb_atomes,last_chrono);
 			fflush(stdout); 
 		}
+		pos2 = position_M(M[i].chebi_id,M);
+		M[pos2]= elimination_feuilles(M[pos2]);
 		r = mesure_similarite( g1_chebi, M[i].chebi_id,M, date, taille_limite);
 		fprintf(F, "%d %f\n",M[i].chebi_id,r);
 		fflush(F);

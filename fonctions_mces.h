@@ -19,4 +19,15 @@ int* graphe_g12(graph g12, int* clique_max, struct molecule *M, int g1_chebi, in
 void liberer_molecule(struct molecule g);
 struct molecule * lecture_fichier_chebi();
 float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double date,int taille_limite);
-void similarite_all(int g1_chebi,struct molecule *M,double date,int taille_limite);
+void similarite_all(int g1_chebi,struct molecule *M,int type, double date,int taille_limite);
+int nb_lignes( FILE *F);
+//fonctions feuilles
+
+int *degre;
+
+void free_memoire(struct molecule m);
+struct molecule modification_structure(struct molecule m);
+struct molecule elimination_feuilles(struct molecule m);
+int *calcul_degre( struct molecule m);
+void affichage_degre(struct molecule m);
+int verif(struct molecule m);
