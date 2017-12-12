@@ -20,7 +20,7 @@ void liberer_molecule(struct molecule g);
 struct molecule * lecture_fichier_chebi();
 float mesure_similarite (int g1_chebi,int g2_chebi,struct molecule *M,double date,int taille_limite);
 void similarite_all(int g1_chebi,struct molecule *M,int type, double date,int taille_limite);
-
+int nb_lignes( FILE *F);
 //fonctions feuilles
 
 int *degre;
