@@ -416,7 +416,7 @@ void similarite_all(int g1_chebi,struct molecule *M,int type, double date,int ta
 	F = fopen( nom, "a");
 	float r;
 	
-	for ( i = 0;  i < NB_MOLECULES;  i++)
+	for ( i = debut;  i < NB_MOLECULES;  i++)
 	{
 		last_chrono = chrono();
 		if (i % 1 == 0) 
