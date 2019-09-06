@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 		exit(20);
 	}
 
-	//lecture des molecules dans le fichier chebi_lite.sdf
+	//Read molecules in the fichier chebi_lite.sdf
 	struct molecule *M = lecture_fichier_chebi();
 	
 	//recuperation des parametres
